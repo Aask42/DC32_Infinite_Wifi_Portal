@@ -8,9 +8,9 @@ Welcome to the fifth iteration of this [Infinity Mirror series](aask.ltd/ftc_fan
 
 As you explore this hardware, note that there are LOTS of hardware features that have yet to have their full potential realized, this product is as pretty as it is useful as a learning tool for diving head-first in to Embedded systems engineering and firmware design. I've rewritten the code several times to make it easy to follow and understand. If you find and resolve a bug, reach out so we can merge your PR!   
 
-<img src="C801D64F-EA2D-402C-A6F3-1CC9CC1678A4_1_102_o.jpeg" alt="drawing" height="400"/>
-<img src="image-1.png" alt="drawing" height="400"/>
-<img src="image-2.png" alt="drawing" height="400"/></br>
+<img src="C801D64F-EA2D-402C-A6F3-1CC9CC1678A4_1_102_o.jpeg" alt="drawing" height="300"></img>
+<img src="image-1.png" alt="drawing" height="300"/>
+<img src="image-2.png" alt="drawing" height="300"/></br>
 
 
 ## Getting Started
