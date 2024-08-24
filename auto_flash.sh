@@ -112,6 +112,8 @@ check_rshell
 echo "Activating virtual environment for the session..."
 activate_venv
 
+echo "If your device is already plugged in, please disconnect and reconnect it now! This process will take approx. 3 minutes. "
+
 # Define the esptool.py commands
 ERASE_CMD="$PYTHON_PATH $ESPTOOL_PATH -p $PORT -b 460800 erase_flash"
 FLASH_CMD="$PYTHON_PATH $ESPTOOL_PATH -p $PORT -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size 4MB --flash_freq 40m 0x0 esp32_micropython.bin"
@@ -169,7 +171,7 @@ while true; do
 
         # Step 1: Use rshell to send a native interrupt to stop any running script
         echo "Sending a native interrupt to stop any running script on the device..."
-        rshell -p ${PORT} repl "~\x03~"
+        rshell -p ${PORT} repl "~\x03~" &> /dev/null
 
         # Give some time for the interruption to take effect
         sleep 1
@@ -179,8 +181,8 @@ while true; do
 
         # Step 3: Reset the device after flashing and file copying
         echo "Resetting the device..."
-        rshell -p ${PORT} repl "~\x03~"
-        rshell -p ${PORT} repl "~\x04~"  # Ctrl+D to reset the device
+        rshell cp ./main.py /pyboard/main.py
+        rshell "repl ~ import machine ~ machine.soft_reset() ~"
 
         # Optional: Wait for the device to be unplugged before finishing
         echo "Please unplug the device to complete the process."
