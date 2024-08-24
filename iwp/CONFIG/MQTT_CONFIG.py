@@ -1,0 +1,4 @@
+MQTT_USERNAME=b"YOURUSERNAME" # These need to be in BYTES
+MQTT_PASSWORD=b"YOURPASSWORD" # These need to be in BYTES
+MQTT_SERVER=b"yourmqttbroker.com"
+MQTT_CLIENT_ID="YOURCLIENTID"
