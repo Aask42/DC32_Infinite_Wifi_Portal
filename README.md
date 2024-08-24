@@ -15,8 +15,9 @@ As you explore this hardware, note that there are LOTS of hardware features that
 
 ## Getting Started
 
-The device will take 5-10 seconds to boot, and once up it will tick at the default BPM of 60  
-The current number of visible Wifi Networks is the length of the outer ring of LEDs.  
+- The device will take 2-5 seconds to boot  
+- Once up it will tick at the default BPM of 60  
+- The current number of visible Wifi Networks is the length of the outer ring of LEDs.  
 
 If you turn the device so the face points towards the earth, it will auto-dim and auto-power off the LED control chips onboard, and will automatically turn back on when tilted upright. 
 
@@ -60,7 +61,7 @@ Modify the ```main.py```
 
 ### Step 1
 
-- You MUST flash our CUSTOM version of MicroPython to your device. There is a ```flash.sh``` file available to auto-flash Micropython to your device when you plug in and unplug it for mass flashing of devices. 
+- You MUST flash our CUSTOM version of MicroPython to your device. There is a ```auto_flash.sh``` file available to auto-flash Micropython to your device when you plug in and unplug it for mass flashing of devices. 
   - This version of MPY is included in this repository. If you use the default version of Micropython you will not be able to take advantage of the non-blocking WiFi scanning features
 - The custom version of micropython is in the included Zip file in this repository. It MUST be flashed using ESPTool. 
 
@@ -72,7 +73,7 @@ Modify the ```main.py```
 
 ### Step 2
 
-Run ```flash.sh```, make sure to run ```chmod +x ./flash.sh``` so it will run correctly!
+Run ```auto_flash.sh```, make sure to run ```chmod +x ./auto_flash.sh``` so it will run correctly!
 
 NOTE: This will take approx 2-4 minutes as the Micropython REPL is slow. But it'll be worth it as you can edit files directly in Thonny when this is done. 
 
