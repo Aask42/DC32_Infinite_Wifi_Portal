@@ -188,7 +188,7 @@ async def main():
             print("Please configure your MQTT server to control over the internet")
     else:
         print("Please configure your WIFI to connect to the internet")
-        asyncio.create_task(wifi_manager.update_network_count())
+        #asyncio.create_task(wifi_manager.update_network_count())
 
     # Initialize Light Sensor Manager
     light_sensor_manager = LightSensorManager(i2c)

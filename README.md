@@ -13,15 +13,18 @@ As you explore this hardware, note that there are LOTS of hardware features that
 <img src="image-2.png" alt="drawing" height="300"/></br>
 
 
-## Getting Started
+## Getting Started/Features
 
-- The device will take 2-5 seconds to boot  
-- Once up it will tick at the default BPM of 60  
-- The current number of visible Wifi Networks is the length of the outer ring of LEDs.  
-
-If you turn the device so the face points towards the earth, it will auto-dim and auto-power off the LED control chips onboard, and will automatically turn back on when tilted upright. 
-
-There IS a button on the back. It's up to YOU to learn how to program a button handler and make it do something neat! Or we will have a set of features implemented on it for Hackaday SuperCon. 
+- The device will take 2-5 seconds to boot
+  - It will take longer the more animation frames it has to render  
+- Second-Hand: The Outer LED ring will tick at the default BPM of 60  
+  - See below for how to change this speed
+- Wifi Counter: The current number of visible Wifi Networks is the length of the outer ring of LEDs.  
+- AutoDim: Turn the device so the face points towards the earth, it will auto-dim and auto-power off the LED control chips onboard
+  - Will automatically turn back on when tilted upright. 
+- There IS a button on the back. 
+  - It's up to YOU to learn how to program a button handler and make it do something neat! 
+  - Or wait for our Hackaday SuperCon updates! 
 
 ### How do I mess with the code?
 

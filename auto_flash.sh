@@ -7,6 +7,7 @@ CONFIG_FILE="./config.txt"
 PYTHON_PATH=""
 ESPTOOL_PATH=""
 VENV_DIR=""
+PORT=""
 
 # Load stored config (if it exists)
 load_config() {
@@ -19,6 +20,8 @@ load_config() {
                 ESPTOOL_PATH=$value
             elif [ "$key" == "VENV_DIR" ]; then
                 VENV_DIR=$value
+            elif [ "$key" == "PORT" ]; then
+                PORT=$value
             fi
         done < "$CONFIG_FILE"
     fi
@@ -29,10 +32,11 @@ save_config() {
     echo "PYTHON_PATH=$PYTHON_PATH" > "$CONFIG_FILE"
     echo "ESPTOOL_PATH=$ESPTOOL_PATH" >> "$CONFIG_FILE"
     echo "VENV_DIR=$VENV_DIR" >> "$CONFIG_FILE"
+    echo "PORT=$PORT" >> "$CONFIG_FILE"
     echo "Configuration saved."
 }
 
-# Ask for python path, esptool path, and virtual environment directory if not already configured
+# Ask for python path, esptool path, tty port, and virtual environment directory if not already configured
 ask_for_config() {
     if [ -z "$PYTHON_PATH" ]; then
         read -p "Enter the full path to your Python interpreter: " PYTHON_PATH
@@ -44,6 +48,10 @@ ask_for_config() {
 
     if [ -z "$VENV_DIR" ]; then
         read -p "Enter the directory where you'd like to create the virtual environment: " VENV_DIR
+    fi
+
+    if [ -z "$PORT" ]; then
+        read -p "Enter the serial port (e.g., /dev/ttyUSB0 or /dev/tty.usbserial-110): " PORT
     fi
 
     save_config
@@ -89,13 +97,12 @@ check_rshell() {
     else
         echo "rshell is already installed."
     fi
-    echo "$VENV_DIR is activated, unplug and re plug in your device to begin the flashing process."
 }
 
 # Load the config first
 load_config
 
-# Ask for python path, esptool path, and virtual environment directory if not already set
+# Ask for python path, esptool path, tty port, and virtual environment directory if not already set
 ask_for_config
 
 # Check for rshell and set up the virtual environment
@@ -105,8 +112,7 @@ check_rshell
 echo "Activating virtual environment for the session..."
 activate_venv
 
-# Define the port and the esptool.py commands
-PORT="/dev/tty.usbserial-110"
+# Define the esptool.py commands
 ERASE_CMD="$PYTHON_PATH $ESPTOOL_PATH -p $PORT -b 460800 erase_flash"
 FLASH_CMD="$PYTHON_PATH $ESPTOOL_PATH -p $PORT -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size 4MB --flash_freq 40m 0x0 esp32_micropython.bin"
 
@@ -172,9 +178,9 @@ while true; do
         copy_files "${PORT}" "${TARGET_CONFIG_DIR}"
 
         # Step 3: Reset the device after flashing and file copying
-        ## Not sure why it has to be fully reset but here we are. 
         echo "Resetting the device..."
-        rshell "repl ~ import machine ~ machine.soft_reset() ~"
+        rshell -p ${PORT} repl "~\x03~"
+        rshell -p ${PORT} repl "~\x04~"  # Ctrl+D to reset the device
 
         # Optional: Wait for the device to be unplugged before finishing
         echo "Please unplug the device to complete the process."
