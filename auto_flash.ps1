@@ -13,25 +13,34 @@ function Load-Config {
         Write-Host "Loading stored configuration..."
         $config = Get-Content $CONFIG_FILE
         foreach ($line in $config) {
-            $key, $value = $line -split "="
-            switch ($key) {
-                "PYTHON_PATH" { $PYTHON_PATH = $value }
-                "ESPTOOL_PATH" { $ESPTOOL_PATH = $value }
-                "VENV_DIR" { $VENV_DIR = $value }
-                "PORT" { $PORT = $value }
+            # Trim the input to avoid whitespace issues
+            $line = $line.Trim()
+            if ($line -match "=") {
+                $key, $value = $line -split "="
+                $key = $key.Trim()
+                $value = $value.Trim()
+                switch ($key) {
+                    "PYTHON_PATH" { $PYTHON_PATH = $value }
+                    "ESPTOOL_PATH" { $ESPTOOL_PATH = $value }
+                    "VENV_DIR" { $VENV_DIR = $value }
+                    "PORT" { $PORT = $value }
+                }
             }
         }
+    } else {
+        Write-Host "Config file not found. Creating a new config."
     }
 }
 
 # Save configuration to config file
 function Save-Config {
-    @"
+    $configContent = @"
 PYTHON_PATH=$PYTHON_PATH
 ESPTOOL_PATH=$ESPTOOL_PATH
 VENV_DIR=$VENV_DIR
 PORT=$PORT
-"@ | Set-Content $CONFIG_FILE
+"@
+    $configContent.Trim() | Set-Content $CONFIG_FILE
     Write-Host "Configuration saved."
 }
 
@@ -54,28 +63,24 @@ function Ask-For-Config {
 
 # Function to activate the virtual environment
 function Activate-Venv {
-    $venvActivate = Join-Path $VENV_DIR "Scripts\Activate.ps1"
-    if (-not (Test-Path $venvActivate)) {
-        # Check for other possible activate scripts
-        if (Test-Path (Join-Path $VENV_DIR "Scripts\Activate.bat")) {
-            $venvActivate = Join-Path $VENV_DIR "Scripts\Activate.bat"
-        } elseif (Test-Path (Join-Path $VENV_DIR "bin/activate")) {
-            $venvActivate = Join-Path $VENV_DIR "bin/activate"
-        } else {
-            Write-Host "Could not find a valid activate script for the virtual environment."
-            exit 1
-        }
-    }
-    
-    Write-Host "Activating virtual environment from: $venvActivate"
-    
-    # Execute the activation script
-    if ($venvActivate.EndsWith(".ps1")) {
-        & $venvActivate
-    } elseif ($venvActivate.EndsWith(".bat")) {
-        cmd.exe /c $venvActivate
+    # Use Join-Path for better cross-platform compatibility
+    $venvActivatePS = Join-Path $VENV_DIR "Scripts\Activate.ps1"
+    $venvActivateBat = Join-Path $VENV_DIR "Scripts\Activate.bat"
+    $venvActivateSh = Join-Path $VENV_DIR "bin/activate"
+
+    # Check for the appropriate virtual environment activation script
+    if (Test-Path $venvActivatePS) {
+        Write-Host "Activating virtual environment from: $venvActivatePS"
+        & $venvActivatePS
+    } elseif (Test-Path $venvActivateBat) {
+        Write-Host "Activating virtual environment from: $venvActivateBat"
+        cmd.exe /c $venvActivateBat
+    } elseif (Test-Path $venvActivateSh) {
+        Write-Host "Activating virtual environment from: $venvActivateSh"
+        source $venvActivateSh
     } else {
-        source $venvActivate
+        Write-Host "Could not find a valid activate script for the virtual environment."
+        exit 1
     }
 }
 
@@ -101,8 +106,7 @@ function Check-Rshell {
         }
         Write-Host "rshell has been installed in the virtual environment at $VENV_DIR."
         Save-Config
-    }
-    else {
+    } else {
         Write-Host "rshell is already installed."
     }
 }
