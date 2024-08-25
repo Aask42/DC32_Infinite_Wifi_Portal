@@ -261,14 +261,10 @@ while ($true) {
 
         # Prompt user to continue or exit
         while ($true) {
-            $key = Read-Host "Press ENTER to flash another device or ESC to exit"
+            $key = Read-Host "Press ANY KEY to flash another device or CTRL+C to exit"
             if ($key -eq "") {
                 Write-Host "Waiting for the next device to be plugged in..."
                 break
-            }
-            elseif ($key -eq "ESC") {
-                Write-Host "Exiting the flashing program."
-                exit
             }
         }
     }
