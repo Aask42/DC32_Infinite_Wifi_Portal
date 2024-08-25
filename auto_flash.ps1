@@ -86,10 +86,10 @@ function Activate-Venv {
     }
 }
 
-# Check and install rshell and create virtual environment if not already done
-function Check-Rshell {
-    if (-not (Get-Command "rshell" -ErrorAction SilentlyContinue)) {
-        Write-Host "rshell not found."
+# Check and install mpremote and create virtual environment if not already done
+function Check-Mpremote {
+    if (-not (Get-Command "mpremote" -ErrorAction SilentlyContinue)) {
+        Write-Host "mpremote not found."
 
         # Check if virtual environment exists, if not, create it
         if (-not (Test-Path $script:VENV_DIR)) {
@@ -99,17 +99,17 @@ function Check-Rshell {
 
         Activate-Venv
 
-        # Install rshell inside the virtual environment
-        Write-Host "Installing rshell..."
-        pip install rshell
+        # Install mpremote inside the virtual environment
+        Write-Host "Installing mpremote..."
+        pip install mpremote
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install rshell."
+            Write-Host "Failed to install mpremote."
             exit 1
         }
-        Write-Host "rshell has been installed in the virtual environment at $script:VENV_DIR."
+        Write-Host "mpremote has been installed in the virtual environment at $script:VENV_DIR."
         Save-Config
     } else {
-        Write-Host "rshell is already installed."
+        Write-Host "mpremote is already installed."
     }
 }
 
@@ -144,8 +144,8 @@ if (-not $script:PORT) {
     Detect-Port
 }
 
-# Check for rshell and set up the virtual environment
-Check-Rshell
+# Check for mpremote and set up the virtual environment
+Check-Mpremote
 
 # Activate the virtual environment before running commands
 Activate-Venv
@@ -160,7 +160,7 @@ $FLASH_CMD = "$script:PYTHON_PATH $script:ESPTOOL_PATH -p $script:PORT -b 460800
 # Target directory containing the configuration files
 $TARGET_CONFIG_DIR = "./iwp"
 
-# Function to copy files to the MicroPython device
+# Function to copy files to the MicroPython device using mpremote
 function Copy-Files {
     param (
         [string]$port,
@@ -169,7 +169,8 @@ function Copy-Files {
 
     if (Test-Path $config_dir) {
         Write-Host "Copying files to device at $port with config $config_dir..."
-        rshell -p $port cp --recursive "$config_dir/*" /pyboard/
+        # Use mpremote to copy files to the ESP32
+        mpremote connect $port fs cp "$config_dir/*" :
         Write-Host "Files copied to device at $port."
     }
     else {
@@ -206,17 +207,12 @@ while ($true) {
             continue
         }
 
-        # Send a native interrupt to stop any running script
-        Write-Host "Sending a native interrupt to stop any running script on the device..."
-        rshell -p $script:PORT repl "~\x03~" | Out-Null
-
-        # Perform the file copy
-        Copy-Files -port $script:PORT -config_dir $TARGET_CONFIG_DIR
-
-        # Reset the device after flashing and file copying
+        # Send a soft reset command using mpremote
         Write-Host "Resetting the device..."
-        rshell cp ./main.py /pyboard/main.py
-        rshell "repl ~ import machine ~ machine.soft_reset() ~"
+        mpremote connect $script:PORT softreset
+
+        # Perform the file copy using mpremote
+        Copy-Files -port $script:PORT -config_dir $TARGET_CONFIG_DIR
 
         # Wait for the device to be unplugged before finishing
         Write-Host "Please unplug the device to complete the process."
