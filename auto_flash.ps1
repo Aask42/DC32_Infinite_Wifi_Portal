@@ -2,10 +2,10 @@
 $CONFIG_FILE = "./config.txt"
 
 # Default values (will be overwritten if found in the config file)
-$PYTHON_PATH = ""
-$ESPTOOL_PATH = ""
-$VENV_DIR = ""
-$PORT = ""
+$script:PYTHON_PATH = ""
+$script:ESPTOOL_PATH = ""
+$script:VENV_DIR = ""
+$script:PORT = ""
 
 # Load stored config (if it exists)
 function Load-Config {
@@ -21,10 +21,10 @@ function Load-Config {
                 $value = $value.Trim()
                 # Only assign values if they exist
                 switch ($key) {
-                    "PYTHON_PATH" { if (-not $PYTHON_PATH) { $PYTHON_PATH = $value } }
-                    "ESPTOOL_PATH" { if (-not $ESPTOOL_PATH) { $ESPTOOL_PATH = $value } }
-                    "VENV_DIR" { if (-not $VENV_DIR) { $VENV_DIR = $value } }
-                    "PORT" { if (-not $PORT) { $PORT = $value } }
+                    "PYTHON_PATH" { if (-not $script:PYTHON_PATH) { $script:PYTHON_PATH = $value } }
+                    "ESPTOOL_PATH" { if (-not $script:ESPTOOL_PATH) { $script:ESPTOOL_PATH = $value } }
+                    "VENV_DIR" { if (-not $script:VENV_DIR) { $script:VENV_DIR = $value } }
+                    "PORT" { if (-not $script:PORT) { $script:PORT = $value } }
                 }
             }
         }
@@ -37,10 +37,10 @@ function Load-Config {
 function Save-Config {
     # Ensure values are retained, and only those updated by the user are modified
     $configContent = @"
-PYTHON_PATH=$PYTHON_PATH
-ESPTOOL_PATH=$ESPTOOL_PATH
-VENV_DIR=$VENV_DIR
-PORT=$PORT
+PYTHON_PATH=$script:PYTHON_PATH
+ESPTOOL_PATH=$script:ESPTOOL_PATH
+VENV_DIR=$script:VENV_DIR
+PORT=$script:PORT
 "@
     $configContent.Trim() | Set-Content $CONFIG_FILE
     Write-Host "Configuration saved."
@@ -48,16 +48,16 @@ PORT=$PORT
 
 # Ask for python path, esptool path, and virtual environment directory if not already configured
 function Ask-For-Config {
-    if (-not $PYTHON_PATH) {
-        $PYTHON_PATH = Read-Host "Enter the full path to your Python interpreter"
+    if (-not $script:PYTHON_PATH) {
+        $script:PYTHON_PATH = Read-Host "Enter the full path to your Python interpreter"
     }
 
-    if (-not $ESPTOOL_PATH) {
-        $ESPTOOL_PATH = Read-Host "Enter the full path to your esptool.py"
+    if (-not $script:ESPTOOL_PATH) {
+        $script:ESPTOOL_PATH = Read-Host "Enter the full path to your esptool.py"
     }
 
-    if (-not $VENV_DIR) {
-        $VENV_DIR = Read-Host "Enter the directory where you'd like to create the virtual environment"
+    if (-not $script:VENV_DIR) {
+        $script:VENV_DIR = Read-Host "Enter the directory where you'd like to create the virtual environment"
     }
 
     Save-Config
@@ -66,9 +66,9 @@ function Ask-For-Config {
 # Function to activate the virtual environment
 function Activate-Venv {
     # Use Join-Path for better cross-platform compatibility
-    $venvActivatePS = Join-Path $VENV_DIR "Scripts\Activate.ps1"
-    $venvActivateBat = Join-Path $VENV_DIR "Scripts\Activate.bat"
-    $venvActivateSh = Join-Path $VENV_DIR "bin/activate"
+    $venvActivatePS = Join-Path $script:VENV_DIR "Scripts\Activate.ps1"
+    $venvActivateBat = Join-Path $script:VENV_DIR "Scripts\Activate.bat"
+    $venvActivateSh = Join-Path $script:VENV_DIR "bin/activate"
 
     # Check for the appropriate virtual environment activation script
     if (Test-Path $venvActivatePS) {
@@ -92,9 +92,9 @@ function Check-Rshell {
         Write-Host "rshell not found."
 
         # Check if virtual environment exists, if not, create it
-        if (-not (Test-Path $VENV_DIR)) {
-            Write-Host "Creating virtual environment in $VENV_DIR..."
-            & $PYTHON_PATH -m venv $VENV_DIR
+        if (-not (Test-Path $script:VENV_DIR)) {
+            Write-Host "Creating virtual environment in $script:VENV_DIR..."
+            & $script:PYTHON_PATH -m venv $script:VENV_DIR
         }
 
         Activate-Venv
@@ -106,7 +106,7 @@ function Check-Rshell {
             Write-Host "Failed to install rshell."
             exit 1
         }
-        Write-Host "rshell has been installed in the virtual environment at $VENV_DIR."
+        Write-Host "rshell has been installed in the virtual environment at $script:VENV_DIR."
         Save-Config
     } else {
         Write-Host "rshell is already installed."
@@ -122,12 +122,12 @@ function Detect-Port {
         Read-Host "Press ENTER when the device is connected"
         return Detect-Port
     } elseif ($availablePorts.Length -eq 1) {
-        $PORT = $availablePorts[0]
-        Write-Host "Detected port: $PORT"
+        $script:PORT = $availablePorts[0]
+        Write-Host "Detected port: $script:PORT"
     } else {
         Write-Host "Multiple ports detected:"
         $availablePorts | ForEach-Object { Write-Host "- $_" }
-        $PORT = Read-Host "Enter the correct port (e.g., COM3)"
+        $script:PORT = Read-Host "Enter the correct port (e.g., COM3)"
     }
 
     Save-Config
@@ -140,7 +140,7 @@ Load-Config
 Ask-For-Config
 
 # Detect the port if not already set
-if (-not $PORT) {
+if (-not $script:PORT) {
     Detect-Port
 }
 
@@ -154,8 +154,8 @@ Write-Host "If your device is already plugged in, please disconnect and reconnec
 Start-Sleep -Seconds 5
 
 # Define the esptool.py commands
-$ERASE_CMD = "$PYTHON_PATH $ESPTOOL_PATH -p $PORT -b 460800 erase_flash"
-$FLASH_CMD = "$PYTHON_PATH $ESPTOOL_PATH -p $PORT -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size 4MB --flash_freq 40m 0x0 esp32_micropython.bin"
+$ERASE_CMD = "$script:PYTHON_PATH $script:ESPTOOL_PATH -p $script:PORT -b 460800 erase_flash"
+$FLASH_CMD = "$script:PYTHON_PATH $script:ESPTOOL_PATH -p $script:PORT -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size 4MB --flash_freq 40m 0x0 esp32_micropython.bin"
 
 # Target directory containing the configuration files
 $TARGET_CONFIG_DIR = "./iwp"
@@ -182,13 +182,13 @@ function Copy-Files {
 while ($true) {
     try {
         # Check if the port is connected
-        if (-not ([System.IO.Ports.SerialPort]::GetPortNames() -contains $PORT)) {
-            Write-Host "Port $PORT disconnected. Waiting for reconnection..."
+        if (-not ([System.IO.Ports.SerialPort]::GetPortNames() -contains $script:PORT)) {
+            Write-Host "Port $script:PORT disconnected. Waiting for reconnection..."
             Start-Sleep -Seconds 1
             continue
         }
         
-        Write-Host "Port $PORT reconnected. Running esptool.py commands..."
+        Write-Host "Port $script:PORT reconnected. Running esptool.py commands..."
 
         # Run the erase flash command
         Write-Host "Running erase_flash..."
@@ -208,10 +208,10 @@ while ($true) {
 
         # Send a native interrupt to stop any running script
         Write-Host "Sending a native interrupt to stop any running script on the device..."
-        rshell -p $PORT repl "~\x03~" | Out-Null
+        rshell -p $script:PORT repl "~\x03~" | Out-Null
 
         # Perform the file copy
-        Copy-Files -port $PORT -config_dir $TARGET_CONFIG_DIR
+        Copy-Files -port $script:PORT -config_dir $TARGET_CONFIG_DIR
 
         # Reset the device after flashing and file copying
         Write-Host "Resetting the device..."
@@ -220,7 +220,7 @@ while ($true) {
 
         # Wait for the device to be unplugged before finishing
         Write-Host "Please unplug the device to complete the process."
-        while ([System.IO.Ports.SerialPort]::GetPortNames() -contains $PORT) {
+        while ([System.IO.Ports.SerialPort]::GetPortNames() -contains $script:PORT) {
             Start-Sleep -Seconds 1
         }
 
