@@ -65,18 +65,12 @@ Modify the ```main.py```
 ### Step 1
 
 - You MUST flash our CUSTOM version of MicroPython to your device. There is a ```auto_flash.sh``` file available to auto-flash Micropython to your device when you plug in and unplug it for mass flashing of devices. 
-  - This version of MPY is included in this repository. If you use the default version of Micropython you will not be able to take advantage of the non-blocking WiFi scanning features
-- The custom version of micropython is in the included Zip file in this repository. It MUST be flashed using ESPTool. 
-
-- Command to flash our version of Micropython (to take advantage of smooth wifi-scanning):
-
-```bash
-./flash.sh
-```
+  - The custom version of micropython is included in this repository. It MUST be flashed using ESPTool. If you use the default version of Micropython you will not be able to take advantage of the non-blocking WiFi scanning features
+  - This will be flashed AUTOMATICALLY by the ```auto_flash.sh``` program included in this repository. 
 
 ### Step 2
 
-Run ```auto_flash.sh``` (or on windows run ```auto_flash.ps1```), if on a Unix-like-system, make sure to run ```chmod +x ./auto_flash.sh``` so it will run correctly!
+Run ```auto_flash.sh``` (or on windows run ```auto_flash.ps1```). If on a Unix-like-system, make sure to run ```chmod +x ./auto_flash.sh``` so it will run correctly!  
 
 NOTE: This will take approx 2-4 minutes as the Micropython REPL is slow. But it'll be worth it as you can edit files directly in Thonny when this is done. 
 
@@ -92,15 +86,25 @@ This ESP32 has some settings different that need to be toggled in order for it t
 
 ### Windows & Linux & MacOS
 
-For some reason Thonny auto-enables rts/dtr and that needs to be disabled on Windows and on Linux. Here's how to fix it: https://github.com/thonny/thonny/issues/2797#issuecomment-1569525310 
+**IMPORTANT!!!!**  
+For some reason Thonny auto-enables rts/dtr and that needs to be disabled on Windows and on Linux. Here's how to fix it: https://github.com/thonny/thonny/issues/2797#issuecomment-1569525310 . MAKE SURE TO CLOSE THONNY WHILE EDITING IT'S configuration.ini FILE OR IT WILL OVERWRITE YOUR CHANGES. 
 
 ### Connecting to the device
 
-Plug in, start ```Thonny```, click the bottom right and select your SERIAL PORT device. In Unix like systems it will be ```/dev/tty.usbserial###``` on Windows it will say ```COM##```. If your DTR/RTS settings are correct, you may have to hit CTRL+C and end the running program to connect and browse the filesystem on the device. 
+After completing the modifications to your configuration.ini for Thonny, plug in your device, restart ```Thonny```, click the bottom right and select your SERIAL PORT device. In Unix like systems it will be ```/dev/tty.usbserial###``` on Windows it will say ```COM##```. If your DTR/RTS settings are correct, you may have to hit CTRL+C and end the running program to connect and browse the filesystem on the device. 
 
-ProTip: In ```Thonny``` go to ```View->Files``` to view the filesystem on your badge. Ensure you create a LOCAL BACKUP of your files before editing them. 
+<img src="image.png" alt="drawing" height="300"/></br>
 
-![Connecting in Thonny](image.png)
+ProTip: In ```Thonny``` go to ```View->Files``` to view the filesystem on your badge. Ensure you create a LOCAL BACKUP of your files ßbefore editing them. 
+<img src="image-4.png" alt="drawing" height="300"/></br>
+
+### Setting your name & BPM
+
+To set your BANNER aka NAME to default to whatever you want, or to change the BPM, in Thonny, edit your main.py file.  
+
+If you have WiFi and an MQTT broker configured, you can set these by publishing a message to the corresponding topic. 
+
+<img src="image-3.png" alt="drawing" width="500"/></br>
 
 ## Firmware Onboard
 
