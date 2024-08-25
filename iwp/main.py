@@ -115,7 +115,7 @@ def sub_cb(topic, msg, direction_timer, display_timer, state_manager, led_contro
         led_controller.cycle = 0
         bpm = int(int(msg_string) * 1.00)
         direction_timer.init(period=int(60000 / bpm), mode=Timer.PERIODIC, callback=lambda t: trigger_on_beat(t, led_controller))
-        display_timer.init(freq=int(bpm/4), mode=Timer.PERIODIC, callback=lambda t: update_display(t, led_matrix, state_manager))
+        display_timer.init(freq=int(bpm/16), mode=Timer.PERIODIC, callback=lambda t: update_display(t, led_matrix, state_manager))
     if topic == b'banner':
         frame_generator = matrix_manager.scroll_text_frames(f"{msg_string}", delay=0.05)
         state_manager.frame_index_to_hash = []
