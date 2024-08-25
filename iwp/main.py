@@ -137,8 +137,10 @@ async def read_light_sensor(light_sensor_manager, state_manager):
             state_manager.set_lux_modifier(lux)
         await asyncio.sleep(1)  # Adjust the delay as needed
 
-def set_led_length(t, led_controller, wifi_manager):
-    led_controller.num_leds_lit = wifi_manager.network_count
+async def set_led_length(led_controller, wifi_manager):
+    while True:
+        led_controller.num_leds_lit = wifi_manager.network_count
+        await asyncio.sleep(10)
     
 
 async def main():
@@ -167,10 +169,11 @@ async def main():
     # Initialize WiFi and MQTT managers
     # Comment this section if you don't want wireless features
     if "YOURWIFINETWORK" != WIFI_LIST[0][0]:
-        wifi_count_timer = Timer(6)
-        wifi_count_timer.init(period=int(60000 / 30), mode=Timer.PERIODIC, callback=lambda t: set_led_length(t, led_controller, wifi_manager))
-
+        #wifi_count_timer = Timer(5)
+        #wifi_count_timer.init(period=int(60000 / 30), mode=Timer.PERIODIC, callback=lambda t: set_led_length(t, led_controller, wifi_manager))
         wifi_manager = WiFiConnection()
+        asyncio.create_task(set_led_length(led_controller, wifi_manager))
+
         await wifi_manager.main()
         if MQTT_USERNAME != b"YOURUSERNAME":
             mqtt_manager = MQTTManager(MQTT_SERVER, MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)
@@ -200,7 +203,3 @@ async def main():
         gc.collect()
 
 asyncio.run(main())
-
-
-
-
