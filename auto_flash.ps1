@@ -19,11 +19,12 @@ function Load-Config {
                 $key, $value = $line -split "="
                 $key = $key.Trim()
                 $value = $value.Trim()
+                # Only assign values if they exist
                 switch ($key) {
-                    "PYTHON_PATH" { $PYTHON_PATH = $value }
-                    "ESPTOOL_PATH" { $ESPTOOL_PATH = $value }
-                    "VENV_DIR" { $VENV_DIR = $value }
-                    "PORT" { $PORT = $value }
+                    "PYTHON_PATH" { if (-not $PYTHON_PATH) { $PYTHON_PATH = $value } }
+                    "ESPTOOL_PATH" { if (-not $ESPTOOL_PATH) { $ESPTOOL_PATH = $value } }
+                    "VENV_DIR" { if (-not $VENV_DIR) { $VENV_DIR = $value } }
+                    "PORT" { if (-not $PORT) { $PORT = $value } }
                 }
             }
         }
@@ -34,6 +35,7 @@ function Load-Config {
 
 # Save configuration to config file
 function Save-Config {
+    # Ensure values are retained, and only those updated by the user are modified
     $configContent = @"
 PYTHON_PATH=$PYTHON_PATH
 ESPTOOL_PATH=$ESPTOOL_PATH
@@ -180,7 +182,7 @@ function Copy-Files {
 while ($true) {
     try {
         # Check if the port is connected
-        if ($null -eq [System.IO.Ports.SerialPort]::GetPortNames() -contains $PORT) {
+        if (-not ([System.IO.Ports.SerialPort]::GetPortNames() -contains $PORT)) {
             Write-Host "Port $PORT disconnected. Waiting for reconnection..."
             Start-Sleep -Seconds 1
             continue
