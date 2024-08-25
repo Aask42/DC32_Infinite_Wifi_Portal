@@ -165,7 +165,7 @@ async def main():
     display_timer.init(freq=15, mode=Timer.PERIODIC, callback=lambda t: update_display(t, matrix_manager.led_matrix, state_manager))
 
     direction_timer = Timer(3)
-    bpm = 85
+    bpm = 60
     direction_timer.init(period=int(60000 / bpm), mode=Timer.PERIODIC, callback=lambda t: trigger_on_beat(t, led_controller))
 
     # Initialize WiFi and MQTT managers
