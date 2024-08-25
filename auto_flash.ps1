@@ -148,10 +148,10 @@ if (-not $script:PORT) {
 Check-Mpremote
 
 # Activate the virtual environment before running commands
-Activate-Venv
+# Activate-Venv
 
 Write-Host "If your device is already plugged in, please disconnect and reconnect it now! This process will take approx. 3 minutes."
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 1
 
 # Define the esptool.py commands
 $ERASE_CMD = "$script:PYTHON_PATH $script:ESPTOOL_PATH -p $script:PORT -b 460800 erase_flash"
@@ -159,6 +159,7 @@ $FLASH_CMD = "$script:PYTHON_PATH $script:ESPTOOL_PATH -p $script:PORT -b 460800
 
 # Target directory containing the configuration files
 $TARGET_CONFIG_DIR = "./iwp"
+$TARGET_CONFIG_DIR = $(get-item $TARGET_CONFIG_DIR).FullName
 
 # Function to copy files to the MicroPython device using mpremote
 function Copy-Files {
@@ -166,17 +167,56 @@ function Copy-Files {
         [string]$port,
         [string]$config_dir
     )
+    # Check if the configuration directory exists
 
+    # Check if the configuration directory exists
+    # Check if the configuration directory exists
+    # Check if the configuration directory exists
     if (Test-Path $config_dir) {
         Write-Host "Copying files to device at $port with config $config_dir..."
-        # Use mpremote to copy files to the ESP32
-        mpremote connect $port fs cp "$config_dir/*" :
+
+        # Initialize a hash set to keep track of created directories
+        $createdDirs = @{}
+
+        # Get all files in the configuration directory, including subdirectories
+        Get-ChildItem -Path $config_dir -Recurse -File | ForEach-Object {
+            # Construct the relative path of the file
+            $relativePath = $_.FullName.Substring($config_dir.Length).TrimStart("\")
+            
+            # Construct the remote directory path
+            $remoteDir = Split-Path -Path $relativePath -Parent
+            
+            # Skip root level directories (which would be represented as an empty path in this context)
+            if (-not [string]::IsNullOrEmpty($remoteDir)) {
+                $remoteDirCommand = ":/$remoteDir"
+
+                # Check if the directory has already been created
+                if (-not $createdDirs.ContainsKey($remoteDirCommand)) {
+                    Write-Host "Creating directory on device: $remoteDirCommand"
+                    try {
+                        mpremote connect $port fs mkdir $remoteDirCommand
+                        # Mark this directory as created
+                        $createdDirs[$remoteDirCommand] = $true
+                    } catch {
+                        Write-Host "Directory already exists or could not be created: $remoteDirCommand"
+                    }
+                }
+            }
+            
+            # Copy the file to the remote device with force option to overwrite
+            Write-Host "Copying file to device: $relativePath"
+            $localFilePath = $_.FullName
+            mpremote connect $port fs cp $localFilePath :$relativePath
+
+            Write-Host "File copied: $relativePath"
+        }
+
         Write-Host "Files copied to device at $port."
-    }
-    else {
+    } else {
         Write-Host "Configuration directory $config_dir not found. Exiting..."
         exit 1
     }
+
 }
 
 # Main loop to monitor port connection status and run flashing commands
@@ -205,22 +245,19 @@ while ($true) {
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Write flash command failed."
             continue
-        }
+        } 
 
         # Send a soft reset command using mpremote
         Write-Host "Resetting the device..."
-        mpremote connect $script:PORT softreset
+        mpremote connect $script:PORT soft-reset
 
         # Perform the file copy using mpremote
         Copy-Files -port $script:PORT -config_dir $TARGET_CONFIG_DIR
 
         # Wait for the device to be unplugged before finishing
-        Write-Host "Please unplug the device to complete the process."
-        while ([System.IO.Ports.SerialPort]::GetPortNames() -contains $script:PORT) {
-            Start-Sleep -Seconds 1
-        }
+        mpremote connect $script:PORT soft-reset
 
-        Write-Host "Device unplugged. Process complete."
+        Write-Host "Please POWER CYCLE the device to complete the process."
 
         # Prompt user to continue or exit
         while ($true) {
