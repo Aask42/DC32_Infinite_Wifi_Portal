@@ -257,10 +257,7 @@ while ($true) {
         # Wait for the device to be unplugged before finishing
         mpremote connect $script:PORT soft-reset
 
-        Write-Host "Please unplug the device to complete the process."
-
-
-        Write-Host "Device unplugged. Process complete."
+        Write-Host "Please POWER CYCLE the device to complete the process."
 
         # Prompt user to continue or exit
         while ($true) {
