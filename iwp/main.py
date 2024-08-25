@@ -149,10 +149,6 @@ async def main():
     state_manager = StateManager()
     matrix_manager = MatrixManager(state_manager, i2c)
     
-    motion_sensor_manager = MotionSensor(i2c=i2c)
-    motion_sensor_manager_timer = Timer(4)
-    motion_sensor_manager_timer.init(freq=7, mode=Timer.PERIODIC, callback=lambda t: sensor_timer_callback(t, motion_sensor_manager, state_manager, led_controller))
-
     # Initialize timers and other components
     frame_generator = matrix_manager.scroll_text_frames("_DC32_2024_")
     for frame, delay in frame_generator:
@@ -171,7 +167,7 @@ async def main():
     # Initialize WiFi and MQTT managers
     # Comment this section if you don't want wireless features
     if "YOURWIFINETWORK" != WIFI_LIST[0][0]:
-        wifi_count_timer = Timer(16)
+        wifi_count_timer = Timer(6)
         wifi_count_timer.init(period=int(60000 / 30), mode=Timer.PERIODIC, callback=lambda t: set_led_length(t, led_controller, wifi_manager))
 
         wifi_manager = WiFiConnection()
@@ -191,14 +187,20 @@ async def main():
         #asyncio.create_task(wifi_manager.update_network_count())
 
     # Initialize Light Sensor Manager
-    light_sensor_manager = LightSensorManager(i2c)
-    asyncio.create_task(read_light_sensor(light_sensor_manager, state_manager))
+    #light_sensor_manager = LightSensorManager(i2c)
+    # asyncio.create_task(read_light_sensor(light_sensor_manager, state_manager))
+    
+    motion_sensor_manager = MotionSensor(i2c=i2c)
+    motion_sensor_manager_timer = Timer(4)
+    motion_sensor_manager_timer.init(freq=7, mode=Timer.PERIODIC, callback=lambda t: sensor_timer_callback(t, motion_sensor_manager, state_manager, led_controller))
 
     while True:
-        await asyncio.sleep(1)
+        
+        await asyncio.sleep_ms(1)
         gc.collect()
 
 asyncio.run(main())
+
 
 
 
