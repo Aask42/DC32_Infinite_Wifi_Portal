@@ -76,7 +76,7 @@ Modify the ```main.py```
 
 ### Step 2
 
-Run ```auto_flash.sh```, make sure to run ```chmod +x ./auto_flash.sh``` so it will run correctly!
+Run ```auto_flash.sh``` (or on windows run ```auto_flash.ps1```), if on a Unix-like-system, make sure to run ```chmod +x ./auto_flash.sh``` so it will run correctly!
 
 NOTE: This will take approx 2-4 minutes as the Micropython REPL is slow. But it'll be worth it as you can edit files directly in Thonny when this is done. 
 
@@ -87,7 +87,7 @@ Set up the Wifi and MQTT connections. NOTE: If you did NOT get your badge at DEF
 
 ## Thonny Setup Instructions
 
-This ESP32 has some settings different that need to be toggled in order for it to work in Thonny on Windows and Linux. For MacOS it just "works"TM . 
+This ESP32 has some settings different that need to be toggled in order for it to work in Thonny on Windows and Linux. For MacOS it just "works"TM. 
 
 
 ### Windows & Linux & MacOS
@@ -104,7 +104,7 @@ ProTip: In ```Thonny``` go to ```View->Files``` to view the filesystem on your b
 
 ## Firmware Onboard
 
-Mostly-standard MicroPython with the upgraded feature of NON-BLOCKING Scanning. You heard that RIGHT folks. The Wifi Scan function has been distilled down to it's quickest in this iteration of MicroPython. 
+Mostly-standard MicroPython with the upgraded feature of NON-BLOCKING Scanning. You heard that RIGHT folks. The Wifi Scan function has been distilled down to it's quickest in this iteration of MicroPython. We havebeen using Thonny to interact with it, but you can use your favorite REPL compatible interface. 
 
 ## Hardware Onboard
 
@@ -126,7 +126,6 @@ Mostly-standard MicroPython with the upgraded feature of NON-BLOCKING Scanning. 
   - Driver: https://github.com/void3729/Mixly2.0_hyseim/blob/f12550ce6cbb8b6bc311a2740abcfe258b31dc13/resources/app/board/micropython_esp32_mixgope/build/lib/ltr308al.py#L4
 - 36 RGB LEDs 
   - Neopixel or other data-pin driven RGB controller of your heart's desire
-
 
 
 ## Credits
